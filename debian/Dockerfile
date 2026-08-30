@@ -24,6 +24,15 @@ RUN --mount=type=secret,id=github_token \
     && rm -rf /tmp/invoiceninja /tmp/invoiceninja.zip \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN cd /var/www/html \
+    && composer install \
+        --no-dev \
+        --no-interaction \
+        --prefer-dist \
+        --optimize-autoloader
+
 RUN ln -s /var/www/html/resources/views/react/index.blade.php /var/www/html/public/index.html \
     && php artisan storage:link \
     # Workaround for application updates
