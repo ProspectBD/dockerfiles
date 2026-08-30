@@ -65,20 +65,16 @@ services:
 
 volumes:
   mysql_data:
-    external: true
-    name: billing_mysql_data
+    name: prod_crm_mysql_data
 
   app_storage:
-    external: true
-    name: billing_app_storage
+    name: prod_crm_app_storage
 
   app_public:
-    external: true
-    name: billing_app_public
+    name: prod_crm_app_public
 
   redis_data:
-    external: true
-    name: billing_redis_data
+    name: prod_crm_redis_data
     
 secrets:
   github_token:
