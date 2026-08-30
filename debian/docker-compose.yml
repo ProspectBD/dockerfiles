@@ -24,7 +24,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8085:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       - app_public:/var/www/html/public:ro
@@ -64,14 +64,22 @@ services:
       test: ["CMD", "redis-cli", "ping"]
 
 volumes:
-  app_public:
-    driver: local
-  app_storage:
-    driver: local
   mysql_data:
-    driver: local
+    external: true
+    name: billing_mysql_data
+
+  app_storage:
+    external: true
+    name: billing_app_storage
+
+  app_public:
+    external: true
+    name: billing_app_public
+
   redis_data:
-    driver: local
+    external: true
+    name: billing_redis_data
+    
 secrets:
   github_token:
     environment: GITHUB_TOKEN
