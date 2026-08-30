@@ -2,12 +2,29 @@ ARG PHP=8.4
 
 FROM php:${PHP}-fpm AS prepare-app
 
-ARG URL=https://github.com/invoiceninja/invoiceninja/releases/latest/download/invoiceninja.tar.gz
+ARG VERSION=v5.0.0
+ARG URL=https://github.com/ProspectBD/invoiceninja/archive/refs/tags/${VERSION}.zip
 
-ADD ${URL} /tmp/invoiceninja.tar.gz
+RUN --mount=type=secret,id=github_token \
+    apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        unzip \
+    && curl \
+        --fail \
+        --silent \
+        --show-error \
+        --location \
+        --header "Authorization: Bearer $(cat /run/secrets/github_token)" \
+        --output /tmp/invoiceninja.zip \
+        "${URL}" \
+    && unzip -q /tmp/invoiceninja.zip -d /tmp/invoiceninja \
+    && mkdir -p /var/www/html \
+    && cp -a /tmp/invoiceninja/invoiceninja-${VERSION#v}/. /var/www/html/ \
+    && rm -rf /tmp/invoiceninja /tmp/invoiceninja.zip \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN tar -xzf /tmp/invoiceninja.tar.gz -C /var/www/html \
-    && ln -s /var/www/html/resources/views/react/index.blade.php /var/www/html/public/index.html \
+RUN ln -s /var/www/html/resources/views/react/index.blade.php /var/www/html/public/index.html \
     && php artisan storage:link \
     # Workaround for application updates
     && mv /var/www/html/public /tmp/public
