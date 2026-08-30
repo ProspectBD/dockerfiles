@@ -9,29 +9,17 @@ RUN --mount=type=secret,id=github_token \
     apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
-        unzip \
     && curl \
         --fail \
         --silent \
         --show-error \
         --location \
         --header "Authorization: Bearer $(cat /run/secrets/github_token)" \
-        --output /tmp/invoiceninja.zip \
+        --output /tmp/invoiceninja.tar.gz \
         "${URL}" \
-    && unzip -q /tmp/invoiceninja.zip -d /tmp/invoiceninja \
-    && mkdir -p /var/www/html \
-    && cp -a /tmp/invoiceninja/invoiceninja-${VERSION#v}/. /var/www/html/ \
-    && rm -rf /tmp/invoiceninja /tmp/invoiceninja.zip \
+    && tar -xzf /tmp/invoiceninja.tar.gz -C /var/www/html \
+    && rm -f /tmp/invoiceninja.tar.gz \
     && rm -rf /var/lib/apt/lists/*
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-RUN cd /var/www/html \
-    && composer install \
-        --no-dev \
-        --no-interaction \
-        --prefer-dist \
-        --optimize-autoloader
 
 RUN ln -s /var/www/html/resources/views/react/index.blade.php /var/www/html/public/index.html \
     && php artisan storage:link \
