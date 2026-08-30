@@ -3,7 +3,7 @@ ARG PHP=8.4
 FROM php:${PHP}-fpm AS prepare-app
 
 ARG VERSION=v5.0.0
-ARG URL=https://github.com/ProspectBD/invoiceninja/archive/refs/tags/${VERSION}.zip
+ARG URL=https://github.com/ProspectBD/invoiceninja/releases/download/${VERSION}invoiceninja.tar.gz
 
 RUN --mount=type=secret,id=github_token \
     apt-get update \
